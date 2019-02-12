@@ -181,6 +181,3 @@ var $ = Knockoff
 Knockoff.noConflict = function() {
   $ = Knockoff.$
 }
-
-Knockoff()
-new Knockoff()
