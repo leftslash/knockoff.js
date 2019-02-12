@@ -20,17 +20,19 @@
  *
  */
 
-var knockoff = function(arg) {
+// Constructor
+function Knockoff(arg) {
 
   var nodes
 
-  // if this is a static method invocation
-  if (typeof this.Object === 'function') {
-    return new knockoff(arg)
-  }
-
   if (typeof arg !== 'string') {
     return
+  }
+
+  // convenience code to allow non-constructor
+  // to act as if it was invoked as a constructor
+  if (!this instanceof Knockoff) {
+    return new Knockoff(arg)
   }
 
   if (arg[0] === '<') {
@@ -45,33 +47,51 @@ var knockoff = function(arg) {
 
 }
 
-knockoff.prototype.on = function(events, handler) {
+// Instance Methods
+
+Knockoff.prototype._forEach = function(items, callback) {
   if (this.nodes) {
     this.forEach(function(node) {
-      events.split(' ').forEach(function(eventName) {
-        node.addEventListener(eventName, handler)
+      items.split(' ').forEach(function(item) {
+        callback(node, item)
       })
     })
   }
+}
+
+Knockoff.prototype.on = function(events, handler) {
+  this._forEach(events, function(node, eventName)  {
+    node.addEventListener(eventName, handler)
+  })
   return this
 }
 
-knockoff.prototype.off = function(events, handler) {
-  if (this.nodes) {
-    this.forEach(function(node) {
-      events.split(' ').forEach(function(eventName) {
-        node.removeEventListener(eventName, handler)
-      })
-    })
-  }
+Knockoff.prototype.off = function(events, handler) {
+  this._forEach(events, function(node, eventName)  {
+    node.removeEventListener(eventName, handler)
+  })
   return this
 }
 
-knockoff.prototype.append = function(knockoff) {
+Knockoff.prototype.addClass = function(classNames) {
+  this._forEach(classNames, function(node, className)  {
+    node.classList.add(className)
+  })
+  return this
+}
+
+Knockoff.prototype.removeClass = function(classNames) {
+  this._forEach(classNames, function(node, className)  {
+    node.classList.remove(className)
+  })
+  return this
+}
+
+Knockoff.prototype.append = function(Knockoff) {
   if (this.nodes) {
     this.nodes.forEach(function(existingNode) {
-      if (knockoff && knockoff.nodes) {
-        knockoff.nodes.forEach(function(newNode) {
+      if (Knockoff && Knockoff.nodes) {
+        Knockoff.nodes.forEach(function(newNode) {
           existingNode.appendChild(newNode)
         })
       }
@@ -80,11 +100,11 @@ knockoff.prototype.append = function(knockoff) {
   return this
 }
 
-knockoff.prototype.remove = function(knockoff) {
+Knockoff.prototype.remove = function(Knockoff) {
   if (this.nodes) {
     this.nodes.forEach(function(existingNode) {
-      if (knockoff && knockoff.nodes) {
-        knockoff.nodes.forEach(function(newNode) {
+      if (Knockoff && Knockoff.nodes) {
+        Knockoff.nodes.forEach(function(newNode) {
           existingNode.removeChild(newNode)
         })
       }
@@ -94,7 +114,7 @@ knockoff.prototype.remove = function(knockoff) {
 }
 
 
-knockoff.prototype.val = function(value) {
+Knockoff.prototype.val = function(value) {
   if (value == null) {
     return this.nodes && this.nodes[0] && this.nodes[0].getAttribute('value')
   } else {
@@ -105,29 +125,7 @@ knockoff.prototype.val = function(value) {
   return this
 }
 
-knockoff.prototype.addClass = function(classNames) {
-  if (this.nodes) {
-    this.forEach(function(node) {
-      classNames.split(' ').forEach(function(className) {
-        node.classList.add(className)
-      })
-    })
-  }
-  return this
-}
-
-knockoff.prototype.removeClass = function(classNames) {
-  if (this.nodes) {
-    this.forEach(function(node) {
-      classNames.split(' ').forEach(function(className) {
-        node.classList.remove(className)
-      })
-    })
-  }
-  return this
-}
-
-knockoff.prototype.show = function() {
+Knockoff.prototype.show = function() {
   if (this.nodes) {
     this.forEach(function(node) {
       node.style.display = ''
@@ -136,7 +134,7 @@ knockoff.prototype.show = function() {
   return this
 }
 
-knockoff.prototype.hide = function() {
+Knockoff.prototype.hide = function() {
   if (this.nodes) {
     this.forEach(function(node) {
       node.style.display = 'none'
@@ -145,16 +143,44 @@ knockoff.prototype.hide = function() {
   return this
 }
 
-knockoff.prototype.forEach = function(fn) {
+Knockoff.prototype.forEach = function(fn) {
   if (this.nodes) {
-    return this.nodes.forEach(fn)
+    this.nodes.forEach(fn)
   }
+  return this
 }
 
-knockoff.$ = $
+// Class (i.e. static) Methods
 
-var $ = knockoff
-
-knockoff.noConflict = function() {
-  $ = knockoff.$
+Knockoff.getJSON(url) = function() {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('GET', url)
+    xhr.onload = function() {
+      try {
+        if (this.status === 200) {
+          resolve(JSON.parse(this.response))
+        } else {
+          reject(`$(this.status) $(this.statusTest)`)
+        }
+      } catch(e) {
+        reject(e.message)
+      }
+    }
+    xhr.onerror = function() {
+      reject(`$(this.status) $(this.statusTest)`)
+    }
+    xhr.send()
+  })
 }
+
+Knockoff.$ = $
+
+var $ = Knockoff
+
+Knockoff.noConflict = function() {
+  $ = Knockoff.$
+}
+
+Knockoff()
+new Knockoff()

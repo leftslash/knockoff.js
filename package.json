@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A lightweight, minimal, zero-dependency, vanilla, old-school JavaScript copy (aka knockoff) of the venerable jQuery utility library.",
   "repository": "https://github.com/leftslash/knockoff.js",
-  "author": "Todd Castilow<todd@leftslash.com>",
+  "author": "Todd Castilow <todd@leftslash.com>",
   "license": "Apache License Version 2.0",
   "devDependencies": {
     "uglify-js": "^3.4.9"
